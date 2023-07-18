@@ -4,7 +4,7 @@ class_name VariableHarvester
 extends Node
 
 const MUST_BE_ROOT = "non-scene linked VariableHarvesters expects to be scene root."
-const HIGHLANDER_CHILD = "VariableHarvesters expect exactly one child."
+const HIGHLANDER_CHILD = "VariableHarvesters expect at least one child."
 
 var properties:Array[String] = []:
 	set(value):
@@ -16,26 +16,27 @@ func _get_property_list():
 	var export_properties := []
 	var child_properties_ls := ""
 	
-	if get_child_count() < 1:
-		return []
+	
 	
 	var datapoint:bool = false
-	var child_properties :Array[Dictionary] = get_child(0).get_property_list()
-	for idx in len(child_properties):
-		var ch :Dictionary = child_properties[idx]
-		
-		if ch.name in properties:
-			export_properties.append(ch)
-		
-		if ch.has("usage") and (ch.usage == PROPERTY_USAGE_CATEGORY or \
-		ch.usage == PROPERTY_USAGE_SUBGROUP or \
-		ch.usage == PROPERTY_USAGE_GROUP or \
-		ch.usage == PROPERTY_USAGE_NO_EDITOR):
-			continue
-		if datapoint:
-			child_properties_ls += ","
-		child_properties_ls += ch.name
-		datapoint = true
+	for i in get_children():
+		var child_properties :Array[Dictionary] = i.get_property_list()
+		for idx in len(child_properties):
+			var ch :Dictionary = child_properties[idx]
+			ch.name = i.name + ":" + ch.name
+			
+			if ch.name in properties:
+				export_properties.append(ch)
+			
+			if ch.has("usage") and (ch.usage == PROPERTY_USAGE_CATEGORY or \
+			ch.usage == PROPERTY_USAGE_SUBGROUP or \
+			ch.usage == PROPERTY_USAGE_GROUP or \
+			ch.usage == PROPERTY_USAGE_NO_EDITOR):
+				continue
+			if datapoint:
+				child_properties_ls += ","
+			child_properties_ls += ch.name
+			datapoint = true
 	
 	export_properties.append({
 		"name":"properties",
@@ -48,14 +49,16 @@ func _get_property_list():
 
 func _set(property, value):
 	if property in properties:
-		get_child(0).set(property, value)
+		var split :Array = property.split(":", true, 2)
+		get_node(split[0]).set(split[1], value)
 		return true
 	else:
 		return false
 
 func _get(property):
 	if property in properties:
-		return get_child(0).get(property)
+		var split :Array = property.split(":", true, 2)
+		return get_node(split[0]).get(split[1])
 	else:
 		return null
 
@@ -66,10 +69,10 @@ func _ready():
 			continue
 		connect(s.get_name(), update_configuration_warnings)
 	
-
-func _get_configuration_warnings():
-	var warnings:Array[String]
-	if get_child_count() != 1:
-		warnings.append(HIGHLANDER_CHILD)
-		properties = []
-	return warnings
+#
+#func _get_configuration_warnings():
+#	var warnings:Array[String]
+#	if get_child_count() < 1:
+#		warnings.append(HIGHLANDER_CHILD)
+#		properties = []
+#	return warnings
