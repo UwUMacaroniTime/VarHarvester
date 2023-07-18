@@ -1,0 +1,13 @@
+[gd_scene load_steps=4 format=3 uid="uid://cg2aps0clq0kw"]
+
+[ext_resource type="PackedScene" uid="uid://khq1ebscflla" path="res://varharvest.tscn" id="1_rog42"]
+[ext_resource type="Texture2D" uid="uid://evqh6ntfghjr" path="res://icon.svg" id="2_r21hw"]
+[ext_resource type="Texture2D" uid="uid://55kce7h0yusl" path="res://addons/variable_harvester/icons-solid.svg" id="3_a283c"]
+
+[node name="Node2D" type="Node2D"]
+
+[node name="varharvest2" parent="." instance=ExtResource("1_rog42")]
+texture = ExtResource("2_r21hw")
+
+[node name="varharvest" parent="." instance=ExtResource("1_rog42")]
+texture = ExtResource("3_a283c")
